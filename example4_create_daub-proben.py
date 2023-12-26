@@ -14,7 +14,7 @@ import random
 model = ifcopenshell.file()
 # All projects must have one IFC Project element
 project = run("root.create_entity", model, ifc_class="IfcProject", name="My Project")
-
+#site = run("root.create_entity", model, ifc_class="IfcSite", name="My Site")
 
 
 ###
@@ -113,6 +113,11 @@ sphere_representation = model.createIfcShapeRepresentation(ContextOfItems=body, 
 ###
 ### 5. Create an ifc element and then apply the local placement and the geometry Representation to this element
 ###
+# Variante 2: if its all the same representation for all elements, asign the representation to the element type
+# NOTE: this saves around 7000 lines of code at 1000 samples / 300 kBytes at 1000 samples
+# element_type = run("root.create_entity", model, ifc_class="Ifcbuildingelementproxytype")
+# run("geometry.assign_representation", model, product=element_type, representation=sphere_representation)
+
 elements = []
 placement_vectors = [(0,0,0), (3,5,2), (1,1,1)]
 placement_vectors = placement_vectors = [(random.randint(0, 100), random.randint(0, 100), random.randint(0, 100)) for _ in range(1000)]
@@ -124,6 +129,9 @@ for placement_vector in placement_vectors:
     elements.append(element)
     run("geometry.edit_object_placement", model, product=element, matrix=matrix, is_si=True)
     run("geometry.assign_representation", model, product=element, representation=sphere_representation)
+    #Variante 2: or if its all the same representation for all elements:
+    #run("type.assign_type", model, related_object=element, relating_type=element_type)
+
     ###
     ### 7b. simpler way to create a property set and add the properties to it
     ###
@@ -179,4 +187,4 @@ ifcopenshell.validate.validate(model, logger)
 ###
 ### 8. Write the model to disk
 ###
-model.write("./data/example4_output_model.ifc")
+model.write("./data/example4_output_model_var1.ifc")
