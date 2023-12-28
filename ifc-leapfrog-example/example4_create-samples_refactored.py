@@ -3,7 +3,7 @@ import ifcopenshell
 from ifcopenshell.api import run
 import ifcopenshell.geom
 import ifcopenshell.validate
-import ifcopenshell.util 
+import ifcopenshell.util
 import time
 import random
 

@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "ifc-leapfrog-example"
+version = "0.1.0"
+description = "This python project shows how to create ifc files / projects according to the DAUB / ITA (2023) Reccomendation on Ground Models (see https://www.daub-ita.de/fileadmin/documents/daub/gtcrec5/2023-05_DAUB-BIT-Modellanforderungen-T3_EN_fin.pdf for details)."
+authors = ["Valentin M <valentin.marquart@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.12"
+ifcopenshell = "^0.7.0.231218"
+numpy = "^1.26.2"
+lark = "^1.1.8"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
