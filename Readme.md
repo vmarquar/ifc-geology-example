@@ -13,4 +13,4 @@
 
 
 ### Installation
-`pip install ifcopenshell` or `poetry add ifcopenshell` or after downloading from git `poetry install`
+`pip install ifcopenshell` or `poetry add ifcopenshell` or after downloading from git `poetry install` or `poetry install --no-root`

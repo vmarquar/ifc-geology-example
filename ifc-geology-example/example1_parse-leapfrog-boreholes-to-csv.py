@@ -5,33 +5,9 @@ import ifcopenshell
 import ifcopenshell.util.element as element
 import ifcopenshell.geom
 import ifcopenshell.util.shape
-import csv
 import time
 
-
-def write_list_of_dict_to_csv(data: list[dict], filepath:str, round_floats:bool=True) -> str:
-    ROUND_DECIMALS = 4
-    keys = data[0].keys() if data else []
-    
-    if(round_floats):
-        data = [{key: round(value, ROUND_DECIMALS) if isinstance(value, (int, float)) else value for key, value in item.items()} for item in data]
-    
-    with open(filepath, 'w', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=keys)
-        writer.writeheader()
-        writer.writerows(data)
-    
-    return(filepath)
-
-def get_application(file: ifcopenshell.file, verbose:bool=False) -> dict | None:
-    try:
-        application = file.by_type('IFCAPPLICATION')[0]
-        application_info = application.get_info()
-        return application_info
-    except Exception as e:
-        if (verbose):
-            print(f"Error: {e}")
-        return None
+from ifc_utils.ifc_utils import get_application, write_list_of_dict_to_csv
 
 def get_bbox_test(elem: ifcopenshell.entity_instance, use_world_coords:bool=True, verbose:bool=False) -> dict:
     # shape.bounds does not work 

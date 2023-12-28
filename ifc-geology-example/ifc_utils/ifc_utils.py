@@ -2,8 +2,42 @@ import ifcopenshell
 from ifcopenshell.api import run
 import ifcopenshell.geom
 import ifcopenshell.validate
-import ifcopenshell.util
 import ifcopenshell.template
+import ifcopenshell.util
+import ifcopenshell.util.shape
+
+import multiprocessing
+import csv
+
+def get_application(file: ifcopenshell.file, verbose:bool=False) -> dict | None:
+    try:
+        application = file.by_type('IFCAPPLICATION')[0]
+        application_info = application.get_info()
+        return application_info
+    except Exception as e:
+        if (verbose):
+            print(f"Error: {e}")
+        return None
+    
+def add_pset_with_props(model: ifcopenshell.file(), element: ifcopenshell.entity_instance, pset_name:str, properties:dict):
+    """
+    Description:
+        Adds a PSET with a given name and properties to the given element
+    Input:
+        model: ifcopenshell.file()
+        element: ifcopenshell.entity_instance
+        pset_name: str
+        properties: dict, e.g. {"Name": "Probenahme", "Description": "Probenahme", "Testmethode": "Eimerprobe", "Entnahmetiefe": 0.0, "Proben_Name": "Probe 1"}
+    Output:
+        pset: ifcopenshell.entity_instance
+    """
+    pset = run("pset.add_pset", model, product=element, name=pset_name)
+    run("pset.edit_pset",
+        model,
+        pset=pset,
+        properties=properties,
+    )
+    return pset
 
 def init_minimal_ifc_model(
     filename: str | None = None,
@@ -213,3 +247,55 @@ def create_and_add_style(
         },
     )
     return style
+
+def calc_volumes(ifc_file:ifcopenshell.file, use_world_coords:bool=True) -> dict:
+    """
+    Calculates the volumes of all entities in the IFC file
+    Args:
+        ifc_file (ifcopenshell.file): IFC file
+    Returns:
+        dict: dictionary with the volumes of all entities, 
+            e.g. {'2HBKPyXqbEBOFvEOPaWIoH': 
+                    {'volume': 0.0, 'name': 'Unit 1 - Clay'},
+                '2HBKPyXqbEBOFv12123IoH': 
+                    {'volume': 0.0, 'name': 'Unit 2 - Sand'}, 
+                ...}
+    """
+    entities_with_volumes = {}
+    settings = ifcopenshell.geom.settings()
+    if(use_world_coords):
+        settings.set(settings.USE_WORLD_COORDS, True)
+
+    iterator = ifcopenshell.geom.iterator(settings, ifc_file, multiprocessing.cpu_count())
+    if iterator.initialize():
+        while True:
+            try:    
+                shape = iterator.get()
+                
+                if(shape is not None):
+                    volume = ifcopenshell.util.shape.get_volume(shape.geometry)
+                    volume_info = {
+                        'volume':volume,
+                        'name':shape.name
+                    }
+                    entities_with_volumes[shape.guid] = volume_info # can be a dict, as the guid is unique
+            except Exception as e:
+                print(f"Error: {e}")
+                pass
+            if not iterator.next():
+                break
+    return entities_with_volumes
+
+def write_list_of_dict_to_csv(data: list[dict], filepath:str, round_floats:bool=True) -> str:
+    ROUND_DECIMALS = 4
+    keys = data[0].keys() if data else []
+    
+    if(round_floats):
+        data = [{key: round(value, ROUND_DECIMALS) if isinstance(value, (int, float)) else value for key, value in item.items()} for item in data]
+    
+    with open(filepath, 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=keys)
+        writer.writeheader()
+        writer.writerows(data)
+    
+    return(filepath)

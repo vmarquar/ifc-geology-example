@@ -11,6 +11,7 @@ python = ">=3.10,<3.12"
 ifcopenshell = "^0.7.0.231218"
 numpy = "^1.26.2"
 lark = "^1.1.8"
+shapely = "^2.0.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.3"
