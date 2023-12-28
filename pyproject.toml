@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "ifc-leapfrog-example"
+name = "ifc-geology-example"
 version = "0.1.0"
 description = "This python project shows how to create ifc files / projects according to the DAUB / ITA (2023) Reccomendation on Ground Models (see https://www.daub-ita.de/fileadmin/documents/daub/gtcrec5/2023-05_DAUB-BIT-Modellanforderungen-T3_EN_fin.pdf for details)."
 authors = ["Valentin M <valentin.marquart@gmail.com>"]
