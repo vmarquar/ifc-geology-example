@@ -3,6 +3,8 @@
 ### Examples
 `ifc-geology-example/example1_parse-leapfrog-boreholes-to-csv.py` shows how to parse an ifc file created from Leapfrog Works. It will extract all boreholes and their intervals into 2 csv files.
 
+`ifc-geology-example/example2_add-pset-to-geological-units.py` shows how to retrieve all geological units / volume bodies and shows how to add PSETs and Properties to the geological units using a csv helper file. Additionally it can compute the volume of all geological bodies.
+
 `ifc-geology-example/example3_create-spheres.py` shows how to create an ifc file from scratch and create random spheres and attach a pset and properties to each of them.
 
 ### Useful links
