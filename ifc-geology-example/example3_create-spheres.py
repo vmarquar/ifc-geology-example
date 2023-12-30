@@ -9,7 +9,8 @@ import numpy as np
 import random
 from logging import getLogger
 
-from ifc_utils.ifc_utils import init_minimal_ifc_model, create_sphere_representation, create_and_add_style
+from ifc_utils.ifc_utils import init_minimal_ifc_model
+from ifc_utils.ifc_representations import create_sphere_representation, create_and_add_style
 
 ### CONSTANTS
 EXPORT_FILENAME = "./data/example4_output_model_var2lean.ifc"
