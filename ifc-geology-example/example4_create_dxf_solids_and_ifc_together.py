@@ -155,6 +155,6 @@ if __name__ == "__main__":
 
 
     # Save the DXF file
-    doc.saveas("./data/cylinders_and_sweeps.dxf")
+    doc.saveas("/Users/valentin/Desktop/Share/01-5_dxfs/cylinders_and_sweeps.dxf")
 
     pass
