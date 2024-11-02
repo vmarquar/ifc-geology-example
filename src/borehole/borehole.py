@@ -60,8 +60,8 @@ class Borehole:
     elevation: float  # Collar's initial Z position
     max_depth: float
     drilling_radius: float
-    drilling_xyzpath: List[PathPoint]
-    drilling_survey: List[SurveySegment]
+    drilling_survey: Optional[List[SurveySegment]] = None
+    drilling_xyzpath: Optional[List[PathPoint]] = None
     casings: Optional[List[Casing]] = None
     intervals: Optional[List[Interval]] = None
     _drilling_depths: Optional[List[float]] = None
@@ -114,7 +114,7 @@ class Borehole:
         pos = dev.minimum_curvature(course_length=30)
 
         # 3) Resample xyz positions to the relevant depths
-        if(self._drilling_depths is None):
+        if(self._drilling_depths is None ):
             self._calculate_depths(spacing=spacing)
         resampled = pos.resample(depths = self._drilling_depths)
 
