@@ -28,7 +28,6 @@ def example7_main():
         intervals=intervals_data, 
         max_depth=10.0
     )
-    borehole._calculate_depths()
     borehole.calculate_drilling_path()
 
     # Output the drilling path
