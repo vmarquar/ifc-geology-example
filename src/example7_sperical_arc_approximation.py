@@ -1,15 +1,19 @@
-from borehole.borehole import SurveySegment, Casing, Borehole, PathPoint
+from borehole.borehole import SurveySegment, Casing, Borehole, PathPoint, Interval
 
 def example7_main():
         
     # Example usage
     survey_data = [
         SurveySegment(depth=0, dip=0, azimuth=0),        # Starting point
-        SurveySegment(depth=10, dip=10, azimuth=30),     # Segment 1
+        SurveySegment(depth=10, dip=0, azimuth=0),     # Segment 1
     ]
 
     casing_data = [
         Casing(depth_from=2.5, depth_to=10.0, casing_radius=0.2),  # Example casing
+    ]
+
+    intervals_data = [
+        Interval(depth_from=0,depth_to=3.333,lithology="Sand")
     ]
 
     borehole = Borehole(
@@ -20,9 +24,12 @@ def example7_main():
         drilling_radius=0.1, 
         drilling_xyzpath=[], 
         drilling_survey=survey_data,
-        casing=casing_data
+        casings=casing_data,
+        intervals=intervals_data, 
+        max_depth=10.0
     )
-    borehole.calculate_drilling_path(interval=1)
+    borehole._calculate_depths()
+    borehole.calculate_drilling_path(interval=0.1)
 
     # Output the drilling path
     for idx, point in enumerate(borehole.drilling_xyzpath):
