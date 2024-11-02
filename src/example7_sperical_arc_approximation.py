@@ -5,7 +5,7 @@ def example7_main():
     # Example usage
     survey_data = [
         SurveySegment(depth=0, dip=0, azimuth=0),        # Starting point
-        SurveySegment(depth=10, dip=0, azimuth=0),     # Segment 1
+        SurveySegment(depth=10, dip=45, azimuth=0),     # Segment 1
     ]
 
     casing_data = [
@@ -29,11 +29,14 @@ def example7_main():
         max_depth=10.0
     )
     borehole._calculate_depths()
-    borehole.calculate_drilling_path(interval=0.1)
+    borehole.calculate_drilling_path()
 
     # Output the drilling path
     for idx, point in enumerate(borehole.drilling_xyzpath):
-        print(f"Point {idx}: x={point.x:.2f}, y={point.y:.2f}, z={point.z:.2f} depth={point.depth:.2f}")
+        if(point.depth is not None):
+            print(f"Point {idx}: x={point.x:.2f}, y={point.y:.2f}, z={point.z:.2f} depth={point.depth:.2f}")
+        else:
+            print(f"Point {idx}: x={point.x:.2f}, y={point.y:.2f}, z={point.z:.2f} depth=None")
 
 
 

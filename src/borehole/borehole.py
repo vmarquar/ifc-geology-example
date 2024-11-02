@@ -1,6 +1,12 @@
+"""
+References:
+- https://www.drillingformulas.com/minimum-curvature-method/
+"""
+
 from dataclasses import dataclass
 import numpy as np
 from typing import List, Optional
+import wellpathpy as wp
 
 def count_significant_figures(number):
     # Convert the number to a string
@@ -92,7 +98,61 @@ class Borehole:
         self._drilling_depths = sorted(depths)
 
 
-    def calculate_drilling_path(self, interval=0.10):
+
+    #TODO: needs refactoring
+    # 1) loop through all depths
+    #      - for each depth calculate the appropiate xyz coords
+    #           - check in wich upper and lower segment each depth falls
+    #           - calculate the xyz coord by doing the minimum curvature method using the dip/azimuth of the two segments
+    #      - store the xxyz coords as drilling paths
+
+    def calculate_drilling_pathNEW(self, interval=0.10):
+        """Calculates the drilling path based on the survey data at a given interval,
+        including markers at casing start and end depths."""
+        # Start at the collar's initial XYZ position
+        self.drilling_xyzpath = [PathPoint(self.easting, self.northing, self.elevation, depth=0.0)]
+        
+        # First, calculate all necessary depths
+        self._calculate_depths(spacing=interval)
+
+        # Loop through all calculated depths
+        for depth in self._drilling_depths:
+            # Find the upper and lower survey segments for the current depth
+            lower_segment = None
+            upper_segment = None
+            
+            for segment in self.drilling_survey:
+                if segment.depth <= depth:
+                    lower_segment = segment  # This will be the last segment below or at depth
+                elif segment.depth > depth and upper_segment is None:
+                    upper_segment = segment  # This will be the first segment above depth
+                    break
+            
+            # If both segments are found, calculate the XYZ coordinates
+            if lower_segment and upper_segment:
+                # Calculate the ratio for interpolation based on depth
+                ratio = (depth - lower_segment.depth) / (upper_segment.depth - lower_segment.depth)
+                
+                # Convert dip and azimuth to radians for calculations
+                dip_lower = np.radians(lower_segment.dip)
+                azimuth_lower = np.radians(lower_segment.azimuth)
+                dip_upper = np.radians(upper_segment.dip)
+                azimuth_upper = np.radians(upper_segment.azimuth)
+
+                # Calculate XYZ coordinates using the minimum curvature method
+                x_lower = self.drilling_xyzpath[-1].x + ratio * (np.sin(azimuth_upper) - np.sin(azimuth_lower))
+                y_lower = self.drilling_xyzpath[-1].y + ratio * (np.cos(azimuth_upper) - np.cos(azimuth_lower))
+                z_lower = self.drilling_xyzpath[-1].z - ratio * (np.cos(dip_lower) + np.cos(dip_upper))
+
+                # Create a new PathPoint
+                new_point = PathPoint(x_lower, y_lower, z_lower, depth=depth)
+                self.drilling_xyzpath.append(new_point)
+
+            # Optionally, check for casing boundaries and add points there if necessary
+            # (similar to what you've commented out previously)
+
+
+    def calculate_drilling_pathOLD(self, interval=0.10):
         """Calculates the drilling path based on the survey data at a given interval,
            including markers at casing start and end depths."""
         # Start at the collar's initial XYZ position
@@ -155,3 +215,31 @@ class Borehole:
                 new_z = last_point.z - remaining_distance * np.cos(inclination)
                 final_point = PathPoint(new_x, new_y, new_z, current_depth)
                 self.drilling_xyzpath.append(final_point)
+
+    def calculate_drilling_path(self):
+        """
+        This is a class-specific wrapper for the wellpathpy API.
+        The function obtains the XYZ delta for the wellpath.
+        By Default the 'minimum_curvature' algorithm is used to determine 
+        the xyz values from the depth, azi, dip measurements.
+        """
+        # 1) Extract measured-depth, inclination (dip), and azimuth
+        md = [segment.depth for segment in self.drilling_survey]
+        inc = [segment.dip for segment in self.drilling_survey]
+        azi = [segment.azimuth for segment in self.drilling_survey]
+
+        # 2) Create a deviation object and calculate positional data
+        dev = wp.deviation(md=md, inc=inc, azi=azi)
+        pos = dev.minimum_curvature(course_length=30)
+
+        # 3) Resample xyz positions to the relevant depths
+        resampled = pos.resample(depths = self._drilling_depths)
+
+        # 4) Translate the resampled positions to the georeferenced position of the collar
+        georef_pos = resampled.to_wellhead(surface_easting=self.easting, surface_northing=self.northing)
+        georef_pos = georef_pos.to_tvdss(datum_elevation=self.elevation)
+
+        # 5) Convert positional data to PathPoint instances
+        self.drilling_xyzpath = [PathPoint(x,y,z,md) for x,y,z,md in zip(georef_pos.easting, georef_pos.northing, georef_pos.depth, self._drilling_depths)]
+
+pass

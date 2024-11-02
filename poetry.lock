@@ -741,7 +741,20 @@ files = [
     {file = "typing_extensions-4.11.0.tar.gz", hash = "sha256:83f085bd5ca59c80295fc2a82ab5dac679cbe02b9f33f7d83af68e241bea51b0"},
 ]
 
+[[package]]
+name = "wellpathpy"
+version = "0.5.0"
+description = "Light package to load well deviations"
+optional = false
+python-versions = "*"
+files = [
+    {file = "wellpathpy-0.5.0-py3-none-any.whl", hash = "sha256:d7100a159e68a84f00a6f90b881dd258b3bc18b24f073a0eab7012e115dd9baf"},
+]
+
+[package.dependencies]
+numpy = ">=1.10"
+
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.12"
-content-hash = "e6df63d5555de68d893221e8129bfdac45658bb23a0835361e548bf40efffa02"
+content-hash = "eaa30efe127354429cb137d9147dda4505f70f52563df38b5e18165fc61890de"
